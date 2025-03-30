@@ -22,5 +22,5 @@ credentials += Credentials(
 )
 
 libraryDependencies ++= Seq(
-  "org.webjars.npm" % "terser" % "5.39.0"
+  "org.webjars.npm" % "terser" % "5.36.0"
 )

@@ -28,14 +28,14 @@ object SbtTerser extends AutoPlugin {
 
   override def projectSettings: Seq[Setting[_]] =
     Seq(
-      excludeFilter in terser := HiddenFileFilter ||
+      terser / excludeFilter := HiddenFileFilter ||
         GlobFilter("*.min.js") ||
-        new SimpleFileFilter(file => file.startsWith((WebKeys.webModuleDirectory in Assets).value)),
-      includeFilter in terser := GlobFilter("*.js"),
-      resourceManaged in terser := webTarget.value / terser.key.label,
-      terser := runOptimizer.dependsOn(webJarsNodeModules in Plugin).value,
-      terserAppDir := (resourceManaged in terser).value / "appdir",
-      terserBuildDir := (resourceManaged in terser).value / "build",
+        new SimpleFileFilter(file => file.startsWith((Assets / WebKeys.webModuleDirectory).value)),
+      terser / includeFilter := GlobFilter("*.js"),
+      terser / resourceManaged := webTarget.value / terser.key.label,
+      terser := runOptimizer.dependsOn(Plugin / webJarsNodeModules).value,
+      terserAppDir := (terser / resourceManaged).value / "appdir",
+      terserBuildDir := (terser / resourceManaged).value / "build",
       terserBeautifyOptions := None,
       terserComments := None,
       terserCompress := false,
@@ -61,19 +61,19 @@ object SbtTerser extends AutoPlugin {
 
   private def runOptimizer: Def.Initialize[Task[Pipeline.Stage]] =
     Def.task {
-      val include       = (includeFilter in terser).value
-      val exclude       = (excludeFilter in terser).value
+      val include       = (terser / includeFilter).value
+      val exclude       = (terser / excludeFilter).value
       val appDirValue   = terserAppDir.value
       val buildDirValue = terserBuildDir.value
       val streamsValue  = streams.value
 
-      val commandValue                       = (command in terser).value
-      val engineTypeValue                    = (engineType in terser).value
-      val nodeModuleDirectoriesInPluginValue = (nodeModuleDirectories in Plugin).value
+      val commandValue                       = (terser / command).value
+      val engineTypeValue                    = (terser / engineType).value
+      val nodeModuleDirectoriesInPluginValue = (Plugin / nodeModuleDirectories).value
       val nodeModulePaths                    = nodeModuleDirectoriesInPluginValue.map(_.getPath)
       val stateValue                         = state.value
-      val timeoutPerSourceValue              = (timeoutPerSource in terser).value
-      val webJarsNodeModulesDirectoryValue   = (webJarsNodeModulesDirectory in Plugin).value
+      val timeoutPerSourceValue              = (terser / timeoutPerSource).value
+      val webJarsNodeModulesDirectoryValue   = (Plugin / webJarsNodeModulesDirectory).value
 
       lazy val commonArgs: Seq[String] =
         beautifyOptionsArgs ++
